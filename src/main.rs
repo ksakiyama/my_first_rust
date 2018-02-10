@@ -1,11 +1,9 @@
 use std::io::{BufRead, BufReader};
 use std::fs::File;
 
-// const DEBUG_MODE: u32 = 1;
-
 /// 定数
-const W: usize = 30;
-const H: usize = 30;
+const W: i32 = 30;
+const H: i32 = 30;
 const DIRECTIONS: [(i32, i32); 4] = [(0, -1), (-1, 0), (0, 1), (1, 0)];
 
 /// Solver
@@ -15,7 +13,7 @@ fn solve() -> bool {
 
     let mut p = search_top(&cells);
     while p.0 >= 0 {
-        while true {
+        loop {
             let x = p.0;
             let y = p.1;
             cells[y as usize][x as usize] = cells[y as usize][x as usize] - 1;
@@ -28,11 +26,11 @@ fn solve() -> bool {
                 if !check_border(nx, ny) {
                     continue;
                 }
-                if cells[y as usize][x as usize] == cells[ny as usize][nx as usize] {
-                    if cells[ny as usize][nx as usize] > 0 {
-                        next = (nx, ny);
-                        break;
-                    }
+                if cells[y as usize][x as usize] == cells[ny as usize][nx as usize]
+                    && cells[ny as usize][nx as usize] > 0
+                {
+                    next = (nx, ny);
+                    break;
                 }
             }
 
@@ -46,23 +44,17 @@ fn solve() -> bool {
         p = search_top(&cells);
     }
 
-    // for row in cells {
-    //     for x in row {
-    //         print!("{:>3} ", x);
-    //     }
-    //     println!("")
-    // }
     return true;
 }
 
-fn compare_around(cells: &Vec<Vec<i32>>, x: usize, y: usize) -> bool {
+fn compare_around(cells: &Vec<Vec<i32>>, x: i32, y: i32) -> bool {
     for d in DIRECTIONS.iter() {
-        let dx = x as i32 + d.0;
-        let dy = y as i32 + d.1;
+        let dx = x + d.0;
+        let dy = y + d.1;
         if !check_border(dx, dy) {
             continue;
         }
-        if cells[y][x] < cells[dy as usize][dx as usize] {
+        if cells[y as usize][x as usize] < cells[dy as usize][dx as usize] {
             return false;
         }
     }
@@ -70,12 +62,12 @@ fn compare_around(cells: &Vec<Vec<i32>>, x: usize, y: usize) -> bool {
 }
 
 fn search_top(cells: &Vec<Vec<i32>>) -> (i32, i32) {
-    for y in 0..H {
-        for x in 0..W {
+    for y in 0..H as usize {
+        for x in 0..W as usize {
             if cells[y][x] <= 0 {
                 continue;
             }
-            if compare_around(&cells, x, y) {
+            if compare_around(&cells, x as i32, y as i32) {
                 return (x as i32, y as i32);
             }
         }
@@ -84,7 +76,7 @@ fn search_top(cells: &Vec<Vec<i32>>) -> (i32, i32) {
 }
 
 fn check_border(x: i32, y: i32) -> bool {
-    if x < 0 || x >= W as i32 || y < 0 || y >= H as i32 {
+    if x < 0 || x >= W || y < 0 || y >= H {
         return false;
     }
     return true;
